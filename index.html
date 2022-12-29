@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        canvas{
+            margin-right: auto;
+            margin-left: auto;
+            margin-top: 50px;
+            display: block;
+        }
+    </style>
+    <script src="model/rectang.js"></script>
+    <script src="model/circle.js"></script>
+</head>
+<body>
+<canvas width="1000" height="500" style="border: 3px solid red" id="myCanvas"></canvas>
+<script>
+
+    let canvas = document.getElementById('myCanvas')
+     let ctx = canvas.getContext('2d')
+    let widthCanvas = canvas.width
+    let heightCanvas = canvas.height
+    console.log(canvas.width)
+    console.log(canvas.height)
+    //rec
+    let widthPaddle = 200
+    let heightPaddle = 50
+    let colorPaddle = 'blue'
+    let xPaddle = (widthCanvas - widthPaddle)/2
+    let yPaddle = heightCanvas - heightPaddle
+    let paddle = new Rectangle(xPaddle,yPaddle,widthPaddle,heightPaddle,colorPaddle)
+    paddle.drawRec(ctx)
+    //circle
+    let dx = 5
+    let dy = -5
+    let radius = 30
+    let xCircle = widthCanvas/2
+    let yCircle = heightCanvas - heightPaddle - radius
+    let colorCircle = 'yellow'
+    let circle = new Circle(xCircle,yCircle,radius,colorCircle)
+    circle.drawCircle(ctx)
+//xep gach Bricks
+    let columnBricks = 6
+    let rowBricks = 4
+    let paddingTop = 50
+    let betweenBricks = 30
+    let widthBricks = 100
+    let heightBricks = 30
+    let betweenTopDown = 20
+    let paddingLeftRight = (widthCanvas - columnBricks*widthBricks - (columnBricks-1) * betweenBricks)/2
+    let xBricks = 0
+    let yBricks = 0
+    let colorBricks = 'green'
+    for (let i = 0; i < rowBricks; i++) {
+        for (let j = 0; j < columnBricks; j++) {
+            xBricks = paddingLeftRight + j*(widthBricks + betweenBricks)
+            yBricks = paddingTop + i*(heightBricks + betweenTopDown)
+            let bricks = new Rectangle(xBricks,yBricks,widthBricks,heightBricks,colorBricks)
+            bricks.drawRec(ctx)
+        }
+    }
+    //Di chuyen paddle
+    function selectKeybroad (evt){
+        clearCanvas()
+        paddle.drawRec(ctx)
+        switch (evt.keyCode){
+            case 37:
+                if (paddle.x === 0){
+                    return
+                }
+                paddle.moveLeft()
+                console.log('==============',)
+                break
+            case 39:
+                if (paddle.x + widthPaddle === widthCanvas){
+                    return;
+                }
+                paddle.moveRight()
+                break
+
+        }
+    }
+    addEventListener('keydown',selectKeybroad)
+    function moveCircle(){
+        clearCanvas()
+        paddle.drawRec(ctx)
+        circle.moveLeft(dx)
+        circle.moveTop(dy)
+        if (circle.x + radius >= widthCanvas || circle.x - radius <= 0){
+            dx = -dx
+            circle.moveLeft(dx)
+            // circle.moveTop(dy)
+        } else if(circle.y - radius <= 0 || circle.y + radius >= heightCanvas){
+            dy = -dy
+            circle.moveTop(dy)
+        }
+        checkCollision()
+        circle.drawCircle(ctx)
+        requestAnimationFrame(moveCircle)
+    }
+    moveCircle()
+    function checkCollision(){
+        if (circle.y + radius > paddle.y && circle.x + radius > paddle.x && circle.x - radius < paddle.x + widthPaddle){
+            dy = -dy
+            circle.moveTop(dy)
+        } else if((circle.x + radius > paddle.x && circle.y + radius > paddle.y)
+            &&(circle.y + radius > paddle.y && circle.x - radius < paddle.x + widthPaddle)){
+            dx = -dx
+            circle.moveLeft(dx)
+        }
+    }
+    function clearCanvas(){
+        ctx.clearRect(0,0,widthCanvas,heightCanvas)
+    }
+</script>
+</body>
+</html>
